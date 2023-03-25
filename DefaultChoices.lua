@@ -10,10 +10,9 @@ local function DefaultChoices()
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
 	self.name = "Default Choice Maker"
 	self.author = "Krizz"
-	self.description = "For FireRed only. Let's you set your name, gender, and riva's name. This will only apply the changes to a new game before talking to Mom."
-	--self.description = "This extension helps the tracker work with Krizz's self-contained Kaizo IronMon Randomizer ROM."
+	self.description = "For FireRed only. Let's you set your name, gender, and rival's name. This will only apply the changes once to a new game."
 	self.version = "1.0"
-	--self.url = "https://github.com/MyUsername/ExtensionRepo" -- Remove or set to nil if no host website available for this extension
+	self.url = "https://github.com/tehkrizz/IronMon-Tracker-Extension-DefaultChoices" -- Remove or set to nil if no host website available for this extension
 	
 	self.Options = {
 		settingsName = "DCM", -- to be prepended to all other settings here
