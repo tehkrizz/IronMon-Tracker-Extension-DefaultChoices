@@ -10,8 +10,8 @@ local function DefaultChoices()
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
 	self.name = "Default Choice Maker"
 	self.author = "Krizz"
-	self.description = "For FireRed only. Let's you set your name, gender, and rival's name. This will only apply the changes once to a new game."
-	self.version = "0.1"
+	self.description = "For FireRed only. Let's you set your name, gender, and rival's name. This will only apply the changes once to a new game. Zone for gender sprite update."
+	self.version = "0.2"
 	self.url = "https://github.com/tehkrizz/IronMon-Tracker-Extension-DefaultChoices" -- Remove or set to nil if no host website available for this extension
 	
 	self.Options = {
@@ -27,8 +27,7 @@ local function DefaultChoices()
 		curRival = "",
 	}
 
-	self.saveblock1Addr = Utils.getSaveBlock1Addr()
-	self.saveblock2Addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+	--If either of these values is nil, the extension will apply the current options.
 	self.updated = nil
 	self.curTrainer = nil
 
@@ -42,7 +41,6 @@ local function DefaultChoices()
 		end
 		local output = {}
 		local length = #input
-		local charcount = 0
 
 		for i=1, length, 1 do
 			local char = string.sub(input, i, i)
@@ -57,65 +55,10 @@ local function DefaultChoices()
 		return output
 	end
 
-	local function updateGame()
-		if Program.GameData.mapId == 1 and self.updated == nil then
-			--Update player name
-			if self.MemValues.CurName ~= self.Options.defaultName then
-				print("Name does not match")
-				--Inject name
-				local newName = ConvertName(self.Options.defaultName)
-				--print(newName)
-				for i=1, 7, 1 do
-					Memory.writebyte((self.saveblock2Addr + i - 1),newName[i])
-				end
-				self.updated = 1
-			end			
-			--Update Gender
-			if self.MemValues.curGender ~= self.Options.defaultGender then
-				print("Gender does not match")
-				--Inject gender
-				local newGender = 0
-				if self.Options.defaultGender == "Male" then 
-					newGender = 0 
-				elseif self.Options.defaultGender == "Female" then 
-					newGender = 1 
-				end
-				--print(newGender)
-				Memory.writebyte((self.saveblock2Addr + 0x08),newGender)
-				self.updated = 1
-			end
-			--Update rival name
-			if self.MemValues.curRival ~= self.Options.defaultRival then
-				print("Rival name does not match")
-				--Inject rival name
-				local newRival = ConvertName(self.Options.defaultRival)
-				--print(newRival)
-				for i=1, 7, 1 do
-					Memory.writebyte((self.saveblock1Addr + 0x3A4C + i - 1),newRival[i])
-				end
-			end
-		else
-			print("Can only update new games.")
-		end
-	end
-
-	local function loadOptions()
-		-- Load options from the Settings file
-		self.Options.defaultName = TrackerAPI.getExtensionSetting(self.Options.settingsName, "defaultName") or self.Options.defaultName
-		self.Options.defaultGender = TrackerAPI.getExtensionSetting(self.Options.settingsName, "defaultGender") or self.Options.defaultGender
-		self.Options.defaultRival = TrackerAPI.getExtensionSetting(self.Options.settingsName, "defaultRival") or self.Options.defaultRival
-
-		print("Option name: " .. self.Options.defaultName)
-		print("Option gender: " .. self.Options.defaultGender)
-		print("Option rival: " .. self.Options.defaultRival)
-
-		-- Apply the loaded options
-		updateGame()
-	end	
-
 	local function checkMemory()
 		if GameSettings.game ~= 3 then
-			print("Not FR")
+			print("DCM - This is only compatible with FireRed.")
+			return
 		end
 
 		self.saveblock1Addr = Utils.getSaveBlock1Addr()
@@ -131,13 +74,13 @@ local function DefaultChoices()
 		end
 		name = Utils.formatSpecialCharacters(name)
 		self.MemValues.curName = name
-		print("Current name:" .. self.MemValues.curName)
+		--print("Current name:" .. self.MemValues.curName)
 
 		--Get cur gender from memory
 		local gender = Memory.readbyte(self.saveblock2Addr + 0x08)
 		if(gender == 0) then gender = "Male" elseif(gender == 1) then gender = "Female" end
 		self.MemValues.curGender = gender
-		print("Current gender:" .. self.MemValues.curGender)
+		--print("Current gender:" .. self.MemValues.curGender)
 
 		--Get cur rival name from memory
 		local rname = ""
@@ -148,16 +91,77 @@ local function DefaultChoices()
 			end
 		end
 		self.MemValues.curRival = rname
-		print("Current rival:" .. self.MemValues.curRival)
+		--print("Current rival:" .. self.MemValues.curRival)
 	end
+
+	local function updateGame()
+		if Program.GameData.mapId ~= 1 or self.updated ~= nil then
+			return
+		end
+		checkMemory()
+		--Update player name
+		if self.MemValues.CurName ~= self.Options.defaultName then
+			--print("Name does not match")
+			--Inject name
+			local newName = ConvertName(self.Options.defaultName)
+			--print(newName)
+			for i=1, 7, 1 do
+				Memory.writebyte((self.saveblock2Addr + i - 1),newName[i])
+			end
+			--self.MemValues.CurName = newName
+			self.updated = 1
+		end			
+		--Update Gender
+		if self.MemValues.curGender ~= self.Options.defaultGender then
+			--print("Gender does not match")
+			--Inject gender
+			local newGender = 0
+			if self.Options.defaultGender == "Male" then 
+				newGender = 0 
+			elseif self.Options.defaultGender == "Female" then 
+				newGender = 1 
+			end
+			--print(newGender)
+			Memory.writebyte((self.saveblock2Addr + 0x08),newGender)
+			self.updated = 1
+		end
+		--Update rival name
+		if self.MemValues.curRival ~= self.Options.defaultRival then
+			--print("Rival name does not match")
+			--Inject rival name
+			local newRival = ConvertName(self.Options.defaultRival)
+			--print(newRival)
+			for i=1, 7, 1 do
+				Memory.writebyte((self.saveblock1Addr + 0x3A4C + i - 1),newRival[i])
+			end
+			self.updated = 1
+		end
+
+		if self.updated == 1 then
+			print("DCM - Choices applied")
+		end
+	end
+
+	local function loadOptions()
+		-- Load options from the Settings file
+		self.Options.defaultName = TrackerAPI.getExtensionSetting(self.Options.settingsName, "defaultName") or self.Options.defaultName
+		self.Options.defaultGender = TrackerAPI.getExtensionSetting(self.Options.settingsName, "defaultGender") or self.Options.defaultGender
+		self.Options.defaultRival = TrackerAPI.getExtensionSetting(self.Options.settingsName, "defaultRival") or self.Options.defaultRival
+		--print("Option name: " .. self.Options.defaultName)
+		--print("Option gender: " .. self.Options.defaultGender)
+		--print("Option rival: " .. self.Options.defaultRival)
+
+		-- Apply the loaded options
+		updateGame()
+	end	
 	
 	local function saveOptions()
 		-- Save options to the Settings file
 		TrackerAPI.saveExtensionSetting(self.Options.settingsName, "defaultName", self.Options.defaultName)
 		TrackerAPI.saveExtensionSetting(self.Options.settingsName, "defaultGender", self.Options.defaultGender)
 		TrackerAPI.saveExtensionSetting(self.Options.settingsName, "defaultRival", self.Options.defaultRival)
+		print("DCM - Options saved.")
 		--Reload Options to pickup new values
-		checkMemory()
 		loadOptions()
 	end
 	
@@ -249,6 +253,7 @@ local function DefaultChoices()
 		end
 		--Trainer ID is tracked to allow it to run for a new game without a hard reset
 		if self.curTrainer == nil or self.curTrainer ~= Tracker.Data.trainerID then
+			--print("Nil or New trainer")
 			self.updated = nil
 			self.curTrainer = Tracker.Data.trainerID
 		end
