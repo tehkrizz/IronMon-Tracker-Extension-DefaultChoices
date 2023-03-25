@@ -183,33 +183,33 @@ local function DefaultChoices()
 		Program.destroyActiveForm()
 		local inputTextboxes = {}
 		--Width, Height, Window Label
-		local optionsKKTH = forms.newform(300, 170, "KKTH Settings", function() client.unpause() end)
-		Program.activeFormId = optionsKKTH
-		Utils.setFormLocation(optionsKKTH, 100, 50)
+		local optionsDCM = forms.newform(300, 170, "DCM Settings", function() client.unpause() end)
+		Program.activeFormId = optionsDCM
+		Utils.setFormLocation(optionsDCM, 100, 50)
 		--Form,Text,x,y,width,height
-		forms.label(optionsKKTH,"Choose default values",10,10,300,20)	
-		forms.label(optionsKKTH,"Default name:", 32,32,75,20)
+		forms.label(optionsDCM,"Choose default values",10,10,300,20)	
+		forms.label(optionsDCM,"Default name:", 32,32,75,20)
 		--form, caption,width,height,boxtype,x,y,multiline,fixedwidth,scrollbars
-		self.textBoxName = forms.textbox(optionsKKTH, self.Options.defaultName, 150, 20, nil, 110, 30)
-		forms.label(optionsKKTH,"Default gender:", 25,57,80,20)
+		self.textBoxName = forms.textbox(optionsDCM, self.Options.defaultName, 150, 20, nil, 110, 30)
+		forms.label(optionsDCM,"Default gender:", 25,57,80,20)
 		--form,items,x,y,w,h
-		self.dropdownGender = forms.dropdown(optionsKKTH, {"Male","Female"}, 110, 52, 150, 20)
+		self.dropdownGender = forms.dropdown(optionsDCM, {"Male","Female"}, 110, 52, 150, 20)
 
 		forms.settext(self.dropdownGender, self.Options.defaultGender)
 
-		forms.label(optionsKKTH,"Default rival name:", 10,78,95,20)
-		self.textBoxRival = forms.textbox(optionsKKTH, self.Options.defaultRival, 150, 20, nil, 110, 75)
+		forms.label(optionsDCM,"Default rival name:", 10,78,95,20)
+		self.textBoxRival = forms.textbox(optionsDCM, self.Options.defaultRival, 150, 20, nil, 110, 75)
 		
 		--formhandle, caption, clickevent, x, y, width, height
-		forms.button(optionsKKTH, "Save", function()
+		forms.button(optionsDCM, "Save", function()
 			local formInput = 
 			applyOptionsCallback(forms.gettext(self.textBoxName),forms.gettext(self.dropdownGender),forms.gettext(self.textBoxRival))
 			client.unpause()
-			forms.destroy(optionsKKTH)
+			forms.destroy(optionsDCM)
 		end, 60, 100)
-		forms.button(optionsKKTH, "Cancel", function()
+		forms.button(optionsDCM, "Cancel", function()
 			client.unpause()
-			forms.destroy(optionsKKTH)
+			forms.destroy(optionsDCM)
 		end, 150, 100)
 	end
 	-- Executed when the user clicks the "Options" button while viewing the extension details within the Tracker's UI
@@ -236,7 +236,7 @@ local function DefaultChoices()
 
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 	function self.startup()
-		--checkMemory()
+		-- [ADD CODE HERE]
 	end
 
 
