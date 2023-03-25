@@ -11,7 +11,7 @@ local function DefaultChoices()
 	self.name = "Default Choice Maker"
 	self.author = "Krizz"
 	self.description = "For FireRed only. Let's you set your name, gender, and rival's name. This will only apply the changes once to a new game."
-	self.version = "1.0"
+	self.version = "0.1"
 	self.url = "https://github.com/tehkrizz/IronMon-Tracker-Extension-DefaultChoices" -- Remove or set to nil if no host website available for this extension
 	
 	self.Options = {
